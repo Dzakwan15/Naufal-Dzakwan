@@ -1,0 +1,307 @@
+import csv
+import os
+
+#fungsi clear screen
+def clear_screen():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+def login(name,password):
+    sukses = False 
+    file = open("logindatabase.txt", "r")
+    for i in file:
+        a,b = i.split(',')
+        b = b.strip()
+        if(a==name and b==password):
+            sukses = True
+            break
+    file.close()
+    if(sukses):
+            print('login diterima, selamat datang')
+    else:
+            print('login gagal, silakan register ulang')
+    
+def register(name,password):
+    file = open('logindatabase.txt','a')
+    file.write('\n'+name+','+password)
+
+def access(option):
+    clear_screen()
+    global name
+    if(option == 'login'):
+        print('Silakan Login\n')
+        name = input('masukan ID anda\t\t:  ')
+        password = input('masukan password anda\t: ')
+        login(name,password)
+    else:
+        print('Masukan ID dan Password Baru Anda \n')
+        name = input('masukan ID\t\t: ')
+        password = input('masukan password\t: ')
+        register(name,password)
+        print("\nregister anda berhasil")
+        input ('\nTekan Enter untuk lanjut .....')
+
+def begin():
+    clear_screen()
+    global option
+    print('----Selamat Datang----\n')
+    print('ketik "login" bila anda sudah memiliki akun ')   
+    print('ketik "reg" bila anda belum memiliki akun\n')
+    option = input('silakan masukan(login/reg): ')
+    if(option!="login" and option!="reg"):
+        begin()
+begin()
+access(option)
+
+
+csv_filename = 'Money_App.csv'
+open(csv_filename, mode='a', newline='')
+
+
+# fungsi tampilan menu
+def tampilkan_menu():
+    clear_screen()
+    print('\t-----Aplikasi Pinjaman Uang----\n')
+    print('\t--------------Menu-------------')
+    print('\t|                             |')
+    print('\t| [1] Buat Data Peminjam Baru |')
+    print('\t| [2] Lihat Daftar Peminjam   |')
+    print('\t| [3] Edit Data Peminjam      |')
+    print('\t| [4] Hapus Data Peminjam     |')
+    print('\t| [5] Cari Data               |')
+    print('\t| [0] Exit                    |')
+    print('\t-------------------------------')
+    pilih_menu = input('\tPilih Menu : ')
+    
+    if (pilih_menu == "1"):
+        buat_data()
+        
+    elif (pilih_menu == "2"):
+        baca_data()
+        
+    elif (pilih_menu == "3"):
+        edit_data()
+        
+    elif (pilih_menu == "4"):
+        hapus_data()
+    
+    elif (pilih_menu == '5'):
+        cari_data()
+        
+    elif (pilih_menu == "0"):
+        clear_screen()
+        print('\n|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\n\n\t\t\tTERIMA KASIH\n\n|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||')
+        exit()
+
+    else:
+        print("\n\tKamu Memilih Menu yang Salah!")
+        kembalikan_menu()
+
+def kembalikan_menu():
+    print("\n")
+    input("Tekan enter untuk kembali .....")
+    tampilkan_menu()
+
+# fungsi buat data
+def buat_data():
+    clear_screen()
+    print('-------Buat Data Peminjam Baru-------')
+    print('|                                   |')
+    nama_peminjam = input('| Nama Peminjam\t\t: ')
+    jumlah_pinjaman = input('| Jumlah Pinjaman\t: ')
+
+    with open(csv_filename, mode='a', newline='') as csv_file:
+
+        writer = csv.writer(csv_file)
+        writer.writerow([nama_peminjam, jumlah_pinjaman])
+
+        print('|                                   |')
+        print('-------------------------------------')
+        print('Data Berhasil Disimpan')
+    
+    kembalikan_menu()
+
+# fungsi lihat data
+def baca_data():
+    clear_screen()
+
+    print('------------Lihat Daftar Peminjam-------------------------')
+    print('')
+    print("------Nama-----------------------------Pinjaman-----------")
+    with open(csv_filename, mode = 'r') as csv_file:
+        for index, row in enumerate(csv.reader(csv_file)):
+            print("|", index+1, ".", row[0], "\t\t\t ---> ", "Rp ", row[1], "\t |" )
+    
+    print('\n----------------------------------------------------------')
+    kembalikan_menu()
+
+# fungsi ubah data
+# Logikanya
+# 1. buat variabel sementara dengan tipe data array
+# 2. masukan semua data csv ke dalam variabel sementara (langkah ini diperlukan guna membuat salinan data csv ke dalam array)
+# 3. ganti salah satu data array dengan cara mengakses index array 
+# 4. timpa data csv dengan data array
+def edit_data():
+    clear_screen()
+
+    print('---------Edit Data Peminjam---------')
+    print('')
+    nomer = int(input('Masukkan nomer yang ingin diedit : '))
+    print('\n')
+
+    #variabel sementara untuk menampung data csv
+    temp = []
+
+    with open(csv_filename, mode='r') as read_csv_file:
+        reader = csv.reader(read_csv_file)
+        for row in reader:
+            temp.append(row)
+    
+    
+    if (nomer -1 < len(temp) and nomer -1 > -1):
+
+        print('>> Masukkan Data Baru')
+
+        nama_peminjam = input('Nama Peminjam\t: ')
+        jumlah_pinjaman = input('Jumlah Pinjaman\t: ')
+        print('')
+
+        # mengedit data array sesuai index
+        temp[nomer-1][0] = nama_peminjam
+        temp[nomer-1][1] = jumlah_pinjaman
+
+        #timpa data file csv dengan data array
+        with open(csv_filename, mode='w', newline='') as csv_file:
+            writer = csv.writer(csv_file)
+
+            for data in temp:
+                writer.writerow(data)
+        
+        print('-----------------------------------')
+        print('Data berhasil diedit')
+        input('Tekan Enter .....')
+    
+
+    else:
+        print('---------------------------')
+        print('Periksa kembali nomer yang ingin diedit')
+        print('')
+        input('Tekan Enter untuk memeriksa data .....')
+        periksa_data()
+
+    baca_data()
+
+# fungsi lihat data kembali
+def periksa_data():
+    clear_screen()
+
+    print('------------Lihat Daftar Peminjam-------------------------')
+    print('')
+    print("------Nama-----------------------------Pinjaman-----------")
+    with open(csv_filename, mode = 'r') as csv_file:
+        for index, row in enumerate(csv.reader(csv_file)):
+            print("|", index+1, ".", row[0], "\t\t\t ---> ", "Rp ", row[1], "\t |" )
+    
+    print('----------------------------------------------------------')
+    cancel = input('Tekan Enter untuk kembali mendedit data.....\nAtau ketik cancel untuk kembali ke menu utama : ')
+    if (cancel == ('cancel')):
+        tampilkan_menu()
+    else:
+        edit_data()
+
+# fungsi hapus data
+# logikanya
+# 1. buat variabel sementara dengan tipe data array
+# 2. masukan semua data csv ke dalam variabel sementara (langkah ini diperlukan guna membuat salinan data csv ke dalam array)
+# 3. hapus salah satu data array dengan cara mengakses index array 
+# 4. timpa data csv dengan data array
+def hapus_data():
+    clear_screen()
+
+    print('--------Hapus Data Peminjam--------\n')
+    nomer = int(input('Masukkan nomer yang ingin dihapus : '))
+    print('')
+
+    #variabel sementara untuk menampung data csv (temporary)
+    temp = []
+
+    with open(csv_filename, mode='r') as read_csv_file:
+        reader = csv.reader(read_csv_file)
+        for row in reader:
+            temp.append(row)
+
+    if (nomer -1 < len(temp) and nomer -1 > -1):
+
+        #hapus data array sesuai index
+        del temp[nomer-1]
+
+        #timpa data file csv dengan data array
+        with open(csv_filename, mode='w', newline='') as csv_file:
+            writer = csv.writer(csv_file)
+
+            for data in temp:
+                writer.writerow(data)
+
+        print('-----------------------------------')
+        print('Data berhasil dihapus')
+        input('Tekan Enter .....')
+
+    else:
+
+        print('------------------------')
+        print('Periksa kembali nomer yang ingin dihapus')
+        print('')
+        input('Tekan Enter untuk memeriksa data .....')
+        periksa_data_hapus()
+
+    baca_data()
+
+# fungsi lihat data kembali hapus
+def periksa_data_hapus():
+    clear_screen()
+
+    print('------------Lihat Daftar Peminjam-------------------------')
+    print('')
+    print("------Nama-----------------------------Pinjaman-----------")
+    with open(csv_filename, mode = 'r') as csv_file:
+        for index, row in enumerate(csv.reader(csv_file)):
+            print("|", index+1, ".", row[0], "\t\t\t ---> ", "Rp ", row[1], "\t |" )
+    
+    print('----------------------------------------------------------')
+    cancel1 = input('Tekan Enter untuk kembali menghapus data.....\nAtau ketik cancel untuk kembali ke menu utama : ')
+    if (cancel1 == ('cancel')):
+        tampilkan_menu()
+    else:
+        hapus_data()
+
+#fungsi cari
+def cari_data():
+    clear_screen()
+
+    print('-----------cari data-----------\n')
+    cari = int(input('cari no urut : '))
+
+    temp = []
+
+    with open(csv_filename, mode='r') as read_csv_file:
+        reader = csv.reader(read_csv_file)
+        for row in reader:
+            temp.append(row)
+
+    if (cari -1 < len(temp) and cari -1 > -1):
+        
+        print('\nData Ditemukan!!!\n')
+        print(temp[cari-1][0])
+        print(temp[cari-1][1])
+
+        input('\nTekan Enter .....')
+        tampilkan_menu()
+
+    else:
+        print('\ndata tidak ditemukan .....')
+        input('\nTekan Enter')
+        tampilkan_menu()
+
+
+tampilkan_menu()
+
+
